@@ -1,13 +1,9 @@
 class BinaryTree:
     class _Node:
         def set_left(self, node):
-            if not type(node) is BinaryTree._Node:
-                raise TypeError
             self.left = node
 
         def set_right(self, node):
-            if not type(node) is BinaryTree._Node:
-                raise TypeError
             self.right = node
 
         def get_left(self):
@@ -131,28 +127,33 @@ class BinaryTree:
 
             if current_node is not None:
                 return_stack.append(current_node.get_value())
-                stack.append(current_node.get_left())
                 stack.append(current_node.get_right())
+                stack.append(current_node.get_left())
 
         return return_stack
 
     def traverse_dfs_postorder(self):
         stack = [self.root]
         return_stack = []
+        out = []
 
         while stack:
             current_node = stack.pop()
 
             while current_node is not None:
                 stack.append(current_node)
-                current_node = current_node.get_left()
+                return_stack.append(current_node)
+                current_node = current_node.get_right()
 
             if stack:
                 current_node = stack.pop()
-                return_stack.append(current_node.get_value())
-                stack.append(current_node.get_right())
+                stack.append(current_node.get_left())
 
-        return return_stack
+        while return_stack:
+            node = return_stack.pop()
+            out.append(node.get_value())
+
+        return out
 
     def balance(self):
         # Set The middle element of the array as root.
@@ -163,24 +164,25 @@ class BinaryTree:
         new = BinaryTree()
         current = self.traverse_dfs_inorder()
 
-        stack = [{"min": 0, "max": len(current) - 1}]
+        if current:
+            stack = [dict(min=0, max=len(current) - 1)]
 
-        while stack:
-            next_node_details = stack.pop()
+            while stack:
+                next_node_details = stack.pop()
 
-            _min = next_node_details["min"]
-            _max = next_node_details["max"]
-            mid = int((_min + _max) / 2)
+                _min = next_node_details["min"]
+                _max = next_node_details["max"]
+                mid = int((_min + _max) / 2)
 
-            new.add(current[mid])
+                new.add(current[mid])
 
-            if _min <= (mid - 1):
-                stack.append({"min": _min, "max": mid - 1})
+                if _min <= (mid - 1):
+                    stack.append(dict(min=_min, max=mid - 1))
 
-            if _max >= (mid + 1):
-                stack.append({"min": mid + 1, "max": _max})
+                if _max >= (mid + 1):
+                    stack.append(dict(min=mid + 1, max=_max))
 
-        self.root = new.root
+            self.root = new.root
 
     def is_height_balanced(self):
         # To check if a Binary tree is balanced we need to check three conditions :
